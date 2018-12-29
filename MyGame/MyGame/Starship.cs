@@ -7,7 +7,10 @@ using System.Drawing;
 
 namespace MyGame
 {
-    class Starship: BaseObject
+    /// <summary>
+    /// Класс кораблей.
+    /// </summary>
+    class Starship : BaseObject
     {
         protected Bitmap ship = Properties.Resources.Starship;
 

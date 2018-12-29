@@ -7,39 +7,56 @@ using System.Drawing;
 
 namespace MyGame
 {
-    class BaseObject
+    /// <summary>
+    /// Базовый класс объектов.
+    /// </summary>
+    /// <exception cref="GameObjectException"></exception>
+    abstract class BaseObject : ICollision
     {
         protected Point Pos;
         protected Point Dir;
         protected Size Size;
         
-        public BaseObject(Point pos, Point dir, Size size)
+        protected BaseObject(Point pos, Point dir, Size size)
         {
+            if (pos.X < 0 || pos.Y < 0) throw new GameObjectException("Позиция объекта меньше нуля");
+            if (dir.X > 50 || dir.Y > 50) throw new GameObjectException("Слишком большая скорость");
+            if (size.Width < 0 || size.Height < 0) throw new GameObjectException("Размер объекта меньше нуля");
             Pos = pos;
             Dir = dir;
             Size = size;
         }
 
-        public BaseObject(Point pos, Point dir, int size)
+        protected BaseObject(Point pos, Point dir, int size)
         {
+            if (pos.X < 0 || pos.Y < 0) throw new GameObjectException("Позиция объекта меньше нуля");
+            if (dir.X > 50 || dir.Y > 50) throw new GameObjectException("Слишком большая скорость");
+            if (size < 0) throw new GameObjectException("Размер объекта меньше нуля");
             Pos = pos;
             Dir = dir;
             Size = new Size(size, size);
         }
-
-        public virtual void Draw()
+        /// <summary>
+        /// Вывод объекта на экран.
+        /// </summary>
+        public abstract void Draw();
+        /// <summary>
+        /// Изменение состояния объекта.
+        /// </summary>
+        public abstract void Update();
+        /// <summary>
+        /// Изменение позиции объекта на экране.
+        /// </summary>
+        public virtual void Regenerate()
         {
-            Game.Buffer.Graphics.DrawEllipse(Pens.White, Pos.X, Pos.Y, Size.Width, Size.Height);
+            Pos.Y = Game.rnd.Next(0, Game.Height - 10);
         }
-
-        public virtual void Update()
-        {
-            Pos.X = Pos.X + Dir.X;
-            Pos.Y = Pos.Y + Dir.Y;
-            if (Pos.X < 0) Dir.X = -Dir.X;
-            if (Pos.X > Game.Width) Dir.X = -Dir.X;
-            if (Pos.Y < 0) Dir.Y = -Dir.Y;
-            if (Pos.Y > Game.Height) Dir.Y = -Dir.Y;
-        }
+        /// <summary>
+        /// Определение столкновения двух объектов.
+        /// </summary>
+        /// <param name="o">Объект, с которым проверяется столкновение.</param>
+        /// <returns></returns>
+        public bool Collision(ICollision o) => o.Rect.IntersectsWith(this.Rect);
+        public Rectangle Rect => new Rectangle(Pos, Size);
     }
 }

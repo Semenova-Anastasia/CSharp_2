@@ -7,12 +7,17 @@ using System.Drawing;
 
 namespace MyGame
 {
-    class Asteroid: BaseObject
+    /// <summary>
+    /// Класс астероидов.
+    /// </summary>
+    class Asteroid : BaseObject
     {
         protected Bitmap sRock = Properties.Resources.SpaceRock;
+        public int Power { get; set; }
 
         public Asteroid(Point pos, Point dir, int size) : base(pos, dir, size)
         {
+            Power = 1;
         }
 
         public override void Draw()
@@ -26,8 +31,14 @@ namespace MyGame
             if (Pos.X < -48)
             {
                 Pos.X = Game.Width + Size.Width;
-                Pos.Y = Game.rnd.Next(0, Game.Height);
+                Pos.Y = Game.rnd.Next(0, Game.Height - 10);
             }
+        }
+
+        public override void Regenerate()
+        {
+            base.Regenerate();
+            Pos.X = Game.Width - Size.Width;
         }
     }
 }

@@ -7,7 +7,10 @@ using System.Drawing;
 
 namespace MyGame
 {
-    class Star: BaseObject
+    /// <summary>
+    /// Класс звезд.
+    /// </summary>
+    class Star : BaseObject
     {
         protected Bitmap star = Properties.Resources.Star;
 

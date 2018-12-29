@@ -11,11 +11,15 @@ namespace MyGame
     {
         static void Main(string[] args)
         {
-            Form form = new Form();
-            form.Width = 1200;
-            form.Height = 600;
+            Game.Resolution();
+            Form form = new Form
+            {
+                Width = Game.Width,
+                Height = Game.Height
+            };
             Game.Init(form);
             form.Show();
+            Game.Load();
             Game.Draw();
             Application.Run(form);
         }
