@@ -13,6 +13,9 @@ namespace MyGame
     /// <exception cref="GameObjectException"></exception>
     abstract class BaseObject : ICollision
     {
+        public delegate void Message();
+        //public Action<string> WriteMessage;
+
         protected Point Pos;
         protected Point Dir;
         protected Size Size;
@@ -49,7 +52,7 @@ namespace MyGame
         /// </summary>
         public virtual void Regenerate()
         {
-            Pos.Y = Game.rnd.Next(0, Game.Height - 10);
+            Pos.Y = Game.rnd.Next(0, Game.Height - 40 + Size.Height);
         }
         /// <summary>
         /// Определение столкновения двух объектов.

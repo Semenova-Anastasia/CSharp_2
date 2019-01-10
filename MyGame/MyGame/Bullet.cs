@@ -12,6 +12,7 @@ namespace MyGame
     /// </summary>
     class Bullet : BaseObject
     {
+        public bool Away { get; private set; } = false;
         public Bullet(Point pos, Point dir, Size size) : base(pos, dir, size)
         {
         }
@@ -24,16 +25,7 @@ namespace MyGame
         public override void Update()
         {
             Pos.X = Pos.X + 10;
-            if (Pos.X > Game.Width)
-            {
-                Pos.X = 15;
-            }
-        }
-        
-        public override void Regenerate()
-        {
-            base.Regenerate();
-            Pos.X = 15;
+            if (Pos.X > Game.Width) Away = true;
         }
     }
 }
