@@ -21,8 +21,8 @@ namespace MyGame
         
         public static Bitmap bg;
         
-        public static int Width { get; set; }
-        public static int Height { get; set; }
+        public static int Width { get; private set; }
+        public static int Height { get; private set; }
 
         private static Timer timer = new Timer { Interval = 100 };
         public static Random rnd;

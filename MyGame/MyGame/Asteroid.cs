@@ -38,7 +38,7 @@ namespace MyGame
         public override void Regenerate()
         {
             base.Regenerate();
-            Pos.X = Game.Width - Size.Width;
+            Pos.X = Game.Width + Size.Width;
         }
     }
 }
