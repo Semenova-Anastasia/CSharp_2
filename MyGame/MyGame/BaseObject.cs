@@ -39,6 +39,10 @@ namespace MyGame
             Dir = dir;
             Size = new Size(size, size);
         }
+
+        protected BaseObject()
+        {
+        }
         /// <summary>
         /// Вывод объекта на экран.
         /// </summary>

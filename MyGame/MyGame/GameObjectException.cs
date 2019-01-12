@@ -28,8 +28,8 @@ namespace MyGame
         /// </summary>
         /// <param name="message">Сообщение об ошибке, указывающее причину создания исключения.</param>
         /// <param name="inner">Исключение, которое является причиной текущего исключения. Если параметр inner
-        //     не является указателем NULL, текущее исключение возникло в блоке catch, обрабатывающем
-        //     внутреннее исключение.</param>
+        /// не является указателем NULL, текущее исключение возникло в блоке catch, обрабатывающем
+        /// внутреннее исключение.</param>
         public GameObjectException(string message, ApplicationException inner) : base(message, inner) { }
         /// <summary>
         /// Инициализирует новый экземпляр класса System.ApplicationException с сериализованными данными.

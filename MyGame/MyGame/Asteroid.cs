@@ -13,11 +13,16 @@ namespace MyGame
     class Asteroid : BaseObject
     {
         protected Bitmap sRock = Properties.Resources.SpaceRock;
+        
         public int Power { get; private set; }
 
         public Asteroid(Point pos, Point dir, int size) : base(pos, dir, size)
         {
             Power = size;
+        }
+        public Asteroid()
+        {
+            Power = 0;
         }
 
         public override void Draw()

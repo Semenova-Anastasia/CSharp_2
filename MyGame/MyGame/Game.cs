@@ -14,25 +14,64 @@ namespace MyGame
     /// </summary>
     static class Game
     {
+        /// <summary>
+        /// Событие, инициирующее запись в журнал.
+        /// </summary>
         public static event Action<string> WriteMessage;
 
         private static BufferedGraphicsContext _context;
         public static BufferedGraphics Buffer;
-        
+        /// <summary>
+        /// Поле для хранения изображения фона.
+        /// </summary>
         public static Bitmap bg;
-        
+        /// <summary>
+        /// Свойство, задающее ширину окна.
+        /// </summary>
         public static int Width { get; private set; }
+        /// <summary>
+        /// Свойство, задающее высоту окна.
+        /// </summary>
         public static int Height { get; private set; }
-
+        /// <summary>
+        /// Свойство, задающее количество астероидов на каждом уровне.
+        /// </summary>
+        public static int Quantity { get; private set; } = 5;
+        /// <summary>
+        /// Свойство, показывающее уровень игры в данный момент.
+        /// </summary>
+        public static int Level { get; private set; } = 1;
+        /// <summary>
+        /// Таймер.
+        /// </summary>
         private static Timer timer = new Timer { Interval = 100 };
+        /// <summary>
+        /// Поле для генерации рандомных чисел.
+        /// </summary>
         public static Random rnd;
-
-        public static Asteroid[] _asteroids;
+        /// <summary>
+        /// Коллекция астероидов.
+        /// </summary>
+        public static List<Asteroid> _asteroids;
+        /// <summary>
+        /// Аптечка.
+        /// </summary>
         public static Medpack _medpack;
+        /// <summary>
+        /// Массив астероидов.
+        /// </summary>
         public static BaseObject[] _stars;
+        /// <summary>
+        /// Коллекция снарядов.
+        /// </summary>
         public static List<Bullet> _bullets;
+        /// <summary>
+        /// Корябль.
+        /// </summary>
         public static Starship _ship;
-
+        /// <summary>
+        /// Конструктор класса Game.
+        /// </summary>
         static Game()
         {
             bg = Properties.Resources.Universe;
@@ -91,7 +130,7 @@ namespace MyGame
             WriteMessage += LogToConsole;
         }
         /// <summary>
-        /// Обработчик для управления кораблем.
+        /// Обработчик клавиш управления кораблем.
         /// </summary>
         private static void Form_KeyDown(object sender, KeyEventArgs e)
         {
@@ -99,7 +138,9 @@ namespace MyGame
             if (e.KeyCode == Keys.Up) _ship.Up();
             if (e.KeyCode == Keys.Down) _ship.Down();
         }
-
+        /// <summary>
+        /// Обработчик таймера.
+        /// </summary>
         private static void Timer_Tick(object sender, EventArgs e)
         {
             Draw();
@@ -127,6 +168,7 @@ namespace MyGame
             {
                 Buffer.Graphics.DrawString("Energy:" + _ship.Energy, SystemFonts.DefaultFont, Brushes.White, 0, 0);
                 Buffer.Graphics.DrawString("Score:" + _ship.Score, SystemFonts.DefaultFont, Brushes.White, 0, 15);
+                Buffer.Graphics.DrawString("Level:" + Level, SystemFonts.DefaultFont, Brushes.White, 0, 30);
             }
             Buffer.Render();
         }
@@ -137,10 +179,10 @@ namespace MyGame
         {
             _bullets = new List<Bullet>();
             _medpack = new Medpack(new Point(rnd.Next(0, Width), rnd.Next(0, Height - 10)), new Point(rnd.Next(-10, -5), 0), rnd.Next(15, 48));
-            _asteroids = new Asteroid[5];
+            _asteroids = new List<Asteroid>();
             _stars = new Star[50];
-            for (int i = 0; i < _asteroids.Length; i++)
-                _asteroids[i] = new Asteroid(new Point(rnd.Next(0, Width), rnd.Next(0, Height - 10)), new Point(rnd.Next(-15, -10), 0), rnd.Next(15, 48));
+            for (int i = 0; i < Quantity; i++)
+                _asteroids.Add(new Asteroid(new Point(rnd.Next(0, Width), rnd.Next(0, Height - 10)), new Point(rnd.Next(-15, -10), 0), rnd.Next(15, 48)));
             for (int i = 0; i < _stars.Length; i++)
                 _stars[i] = new Star(new Point(rnd.Next(0, Width), rnd.Next(0, Height)), new Point(rnd.Next(-4, -1), 0), rnd.Next(4, 16));
             _ship = new Starship(new Point(100, Height / 2 - 50), new Point(0, 10), new Size(64, 30));
@@ -161,6 +203,27 @@ namespace MyGame
         public static void LogToConsole(string message)
         {
             Console.WriteLine(message);
+        }        
+        /// <summary>
+        /// Проверка и переход на новый уровень.
+        /// </summary>
+        public static void NextLevel()
+        {
+            int n = 0;
+            foreach (Asteroid a in _asteroids)
+                if (a.Power == 0) n++;
+            if (n == _asteroids.Count)
+            {
+                _asteroids.RemoveAll(item => item.Power == 0);
+                Quantity++;
+                Level++;
+                for (int i = 0; i < Quantity; i++)
+                    _asteroids.Add(new Asteroid(new Point(rnd.Next(0, Width), rnd.Next(0, Height - 10)), new Point(rnd.Next(-15, -10), 0), rnd.Next(15, 48)));
+                Buffer.Graphics.DrawString("Next Level!", new Font(FontFamily.GenericSansSerif, 60, FontStyle.Underline), Brushes.White, Game.Width / 2, Game.Height / 2);
+                
+                Buffer.Render();
+                System.Threading.Thread.Sleep(3000);
+            }
         }
         /// <summary>
         /// Изменение состояния объектов, проверка столкновений объектов.
@@ -171,7 +234,7 @@ namespace MyGame
                 obj.Update();
             foreach (Bullet b in _bullets)
                 b?.Update();
-            for (var i = 0; i < _asteroids.Length; i++)
+            for (var i = 0; i < _asteroids.Count; i++)
             {
                 if (_asteroids[i] == null) continue;
                 _asteroids[i].Update();
@@ -180,7 +243,8 @@ namespace MyGame
                     if (_bullets[j] != null && _bullets[j].Collision(_asteroids[i]))
                     {
                         System.Media.SystemSounds.Hand.Play();
-                        _asteroids[i].Regenerate();
+                        //_asteroids[i].Regenerate();
+                        _asteroids[i] = new Asteroid();
                         _ship.ScoreChange(1);
                         WriteMessage("Asteroid destroyed");
                         _bullets[j] = null;
@@ -190,7 +254,8 @@ namespace MyGame
                 if (_ship.Collision(_asteroids[i]))
                 {
                     _ship?.EnergyChange(_asteroids[i].Power);
-                    _asteroids[i].Regenerate();
+                    //_asteroids[i].Regenerate();
+                    _asteroids[i] = new Asteroid();
                     WriteMessage("Ship collision");
                     System.Media.SystemSounds.Asterisk.Play();
                     if (_ship.Energy <= 0) _ship.Die();
@@ -207,6 +272,7 @@ namespace MyGame
             }
             _bullets.RemoveAll(item => item == null);
             _bullets.RemoveAll(item => item.Away == true);
+            NextLevel();
         }
     }
 }
