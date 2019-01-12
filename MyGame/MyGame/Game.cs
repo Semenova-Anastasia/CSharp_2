@@ -35,6 +35,7 @@ namespace MyGame
 
         static Game()
         {
+            bg = Properties.Resources.Universe;
         }
         /// <summary>
         /// Позволяет пользователю задать разрешение экрана.
@@ -75,7 +76,6 @@ namespace MyGame
 
             _context = BufferedGraphicsManager.Current;
             g = form.CreateGraphics();
-
             rnd = new Random();
 
             form.FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -110,8 +110,8 @@ namespace MyGame
         /// </summary>
         public static void Draw()
         {
-            Buffer.Graphics.Clear(Color.Black);
-            bg = Properties.Resources.Universe;
+            Buffer.Graphics.Clear(Color.Transparent);
+            
             Buffer.Graphics.DrawImage(bg, new Rectangle(0, 0, Width, Height));
             foreach (Asteroid a in _asteroids)
                 a?.Draw();
