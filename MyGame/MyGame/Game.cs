@@ -301,7 +301,11 @@ namespace MyGame
                     _asteroids[i] = new Asteroid();
                     WriteMessage("Ship collision");
                     System.Media.SystemSounds.Asterisk.Play();
-                    if (_ship.Energy <= 0) _ship.Die();
+                    if (_ship.Energy <= 0)
+                    {
+                        WriteMessage("You Died");
+                        _ship.Die();
+                    };
                 }
             }
             _medpack?.Update();
