@@ -11,6 +11,7 @@ namespace MyGame
     {
         static void Main(string[] args)
         {
+            Application.ApplicationExit += HandleAppExit;
             Game.Resolution();
             Form form = new Form
             {
@@ -22,6 +23,11 @@ namespace MyGame
             Game.Load();
             Game.Draw();
             Application.Run(form);
+        }
+        static void HandleAppExit(object sender, EventArgs e)
+        {
+            // Обработчик события Application.ApplicationExit
+            Game.log.Save();
         }
     }
 }

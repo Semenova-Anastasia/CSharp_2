@@ -12,9 +12,10 @@ namespace MyGame
     /// </summary>
     class Bullet : BaseObject
     {
-        public bool Away { get; private set; } = false;
+        public bool Away { get; private set; }
         public Bullet(Point pos, Point dir, Size size) : base(pos, dir, size)
         {
+            Away = false;
         }
 
         public override void Draw()

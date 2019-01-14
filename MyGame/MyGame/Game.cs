@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace MyGame
 {
@@ -22,15 +23,23 @@ namespace MyGame
         private static BufferedGraphicsContext _context;
         public static BufferedGraphics Buffer;
         /// <summary>
-        /// Поле для хранения изображения фона.
+        /// Изображения фона.
         /// </summary>
         public static Bitmap bg;
         /// <summary>
-        /// Свойство, задающее ширину окна.
+        /// Изображение сообщения Game Over.
+        /// </summary>
+        public static Bitmap gameOver;
+        /// <summary>
+        /// Изображение сообщения Next Level.
+        /// </summary>
+        public static Bitmap nextLevel;
+        /// <summary>
+        /// Свойство, задающее ширину игрового поля.
         /// </summary>
         public static int Width { get; private set; }
         /// <summary>
-        /// Свойство, задающее высоту окна.
+        /// Свойство, задающее высоту игрового поля.
         /// </summary>
         public static int Height { get; private set; }
         /// <summary>
@@ -45,6 +54,10 @@ namespace MyGame
         /// Таймер.
         /// </summary>
         private static Timer timer = new Timer { Interval = 100 };
+        /// <summary>
+        /// Время, когда произошло событие.
+        /// </summary>
+        private static DateTime now;
         /// <summary>
         /// Поле для генерации рандомных чисел.
         /// </summary>
@@ -66,15 +79,27 @@ namespace MyGame
         /// </summary>
         public static List<Bullet> _bullets;
         /// <summary>
-        /// Корябль.
+        /// Корабль.
         /// </summary>
         public static Starship _ship;
+        /// <summary>
+        /// Путь к текущей директории.
+        /// </summary>
+        private static string filePath;
+        /// <summary>
+        /// Журнал.
+        /// </summary>
+        public static NotesToXML log;
         /// <summary>
         /// Конструктор класса Game.
         /// </summary>
         static Game()
         {
             bg = Properties.Resources.Universe;
+            gameOver = Properties.Resources.GameOver;
+            nextLevel = Properties.Resources.NextLevel;
+            filePath = Directory.GetCurrentDirectory();
+            log = new NotesToXML(filePath);
         }
         /// <summary>
         /// Позволяет пользователю задать разрешение экрана.
@@ -128,6 +153,7 @@ namespace MyGame
             form.KeyDown += Form_KeyDown;
             Starship.MessageDie += Finish;
             WriteMessage += LogToConsole;
+            WriteMessage += LogToXML;
         }
         /// <summary>
         /// Обработчик клавиш управления кораблем.
@@ -193,7 +219,19 @@ namespace MyGame
         public static void Finish()
         {
             timer.Stop();
-            Buffer.Graphics.DrawString("Game Over", new Font(FontFamily.GenericSansSerif, 60, FontStyle.Underline), Brushes.White, 200, 100);
+            DrawMessage(gameOver);
+        }
+        /// <summary>
+        /// Вывод сообщения на экран.
+        /// </summary>
+        /// <param name="im">Изображение с сообщением.</param>
+        public static void DrawMessage(Bitmap im)
+        {
+            int w = Game.Width / 2;
+            int h = w / 5;
+            int x = (Game.Width / 2) - (w / 2);
+            int y = (Game.Height / 2) - (h / 2) - 40;
+            Buffer.Graphics.DrawImage(im, x, y, w, h);
             Buffer.Render();
         }
         /// <summary>
@@ -202,8 +240,14 @@ namespace MyGame
         /// <param name="message">Сообщение.</param>
         public static void LogToConsole(string message)
         {
-            Console.WriteLine(message);
-        }        
+            now = DateTime.Now;
+            Console.WriteLine($"{now} : {message}");
+        }
+        public static void LogToXML(string message)
+        {
+            now = DateTime.Now;
+            log.Add(now, message, _ship.Score.ToString(), _ship.Energy.ToString());
+        }
         /// <summary>
         /// Проверка и переход на новый уровень.
         /// </summary>
@@ -219,9 +263,8 @@ namespace MyGame
                 Level++;
                 for (int i = 0; i < Quantity; i++)
                     _asteroids.Add(new Asteroid(new Point(rnd.Next(0, Width), rnd.Next(0, Height - 10)), new Point(rnd.Next(-15, -10), 0), rnd.Next(15, 48)));
-                Buffer.Graphics.DrawString("Next Level!", new Font(FontFamily.GenericSansSerif, 60, FontStyle.Underline), Brushes.White, Game.Width / 2, Game.Height / 2);
-                
-                Buffer.Render();
+                WriteMessage("Next Level!");
+                DrawMessage(nextLevel);
                 System.Threading.Thread.Sleep(3000);
             }
         }
@@ -272,7 +315,7 @@ namespace MyGame
             }
             _bullets.RemoveAll(item => item == null);
             _bullets.RemoveAll(item => item.Away == true);
-            NextLevel();
+            if (_ship.Energy > 0) NextLevel();
         }
     }
 }
